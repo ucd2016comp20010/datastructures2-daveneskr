@@ -7,7 +7,7 @@ import java.util.Iterator;
 public class CircularlyLinkedList<E> implements List<E> {
 
     private class Node<T> {
-        private final T data;
+        private T data;
         private Node<T> next;
 
         public Node(T e, Node<T> n) {
@@ -28,8 +28,8 @@ public class CircularlyLinkedList<E> implements List<E> {
         }
     }
 
-    private final Node<E> tail = null;
-    private final int size = 0;
+    private Node<E> tail = null;
+    private int size = 0;
 
     public CircularlyLinkedList() {
 
@@ -42,8 +42,16 @@ public class CircularlyLinkedList<E> implements List<E> {
 
     @Override
     public E get(int i) {
-        // TODO
-        return null;
+        if (i >= size || i < 0) throw new IndexOutOfBoundsException();
+
+        Node<E> curr = tail.getNext();
+
+        while (i != 0) {
+            curr = curr.getNext();
+            i--;
+        }
+
+        return curr.getData();
     }
 
     /**
@@ -55,17 +63,75 @@ public class CircularlyLinkedList<E> implements List<E> {
      */
     @Override
     public void add(int i, E e) {
-        // TODO
+        if (isEmpty()) {
+            tail = new Node<E>(e, null);
+            tail.setNext(tail);
+            size++;
+            return;
+        }
+
+        if (i == 0) {
+            Node<E> newest = new Node<E>(e, tail.getNext());
+            tail.setNext(newest);
+            size++;
+            return;
+        }
+
+        if (i == size) {
+            Node<E> newest = new Node<E>(e, tail.getNext());
+            tail.setNext(newest);
+            tail = newest;
+            size++;
+            return;
+        }
+
+        Node<E> curr = tail.getNext();
+        Node<E> prev = tail.getNext();
+
+        while (i != 0) {
+            prev = curr;
+            curr = curr.getNext();
+            i--;
+        }
+
+        Node<E> newest = new Node<E>(e, curr);
+        prev.setNext(newest);
+        size++;
     }
 
     @Override
     public E remove(int i) {
-        // TODO
-        return null;
+        if (isEmpty()) return null;
+
+        if (i == 0) {
+            E data = tail.getNext().getData();
+            tail.setNext(tail.getNext().getNext());
+            size--;
+            return data;
+        }
+
+        Node<E> curr = tail.getNext();
+        Node<E> prev = tail.getNext();
+
+        while (i != 0) {
+            prev = curr;
+            curr = curr.getNext();
+            i--;
+        }
+
+        prev.setNext(curr.getNext());
+        if (curr == tail) {
+            tail = prev;
+        }
+        size--;
+
+        return curr.getData();
     }
 
     public void rotate() {
-        // TODO
+        if (!isEmpty()) {
+            tail = tail.getNext();
+        }
     }
 
     private class CircularlyLinkedListIterator<E> implements Iterator<E> {
@@ -97,24 +163,22 @@ public class CircularlyLinkedList<E> implements List<E> {
 
     @Override
     public E removeFirst() {
-        // TODO
-        return null;
+        return remove(0);
     }
 
     @Override
     public E removeLast() {
-        // TODO
-        return null;
+        return remove(size-1);
     }
 
     @Override
     public void addFirst(E e) {
-        // TODO
+        add(0, e);
     }
 
     @Override
     public void addLast(E e) {
-        // TODO
+        add(size, e);
     }
 
 
@@ -135,32 +199,15 @@ public class CircularlyLinkedList<E> implements List<E> {
 
     public static void main(String[] args) {
         CircularlyLinkedList<Integer> ll = new CircularlyLinkedList<Integer>();
-        for (int i = 10; i < 20; ++i) {
+        for (int i = 0; i < 20; ++i) {
             ll.addLast(i);
         }
 
+        ll.add(3, 10);
+
         System.out.println(ll);
 
-        ll.removeFirst();
-        System.out.println(ll);
 
-        ll.removeLast();
-        System.out.println(ll);
-
-        ll.rotate();
-        System.out.println(ll);
-
-        ll.removeFirst();
-        ll.rotate();
-        System.out.println(ll);
-
-        ll.removeLast();
-        ll.rotate();
-        System.out.println(ll);
-
-        for (Integer e : ll) {
-            System.out.println("value: " + e);
-        }
 
     }
 }
