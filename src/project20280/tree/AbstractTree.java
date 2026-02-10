@@ -27,8 +27,7 @@ public abstract class AbstractTree<E> implements Tree<E> {
      */
     @Override
     public boolean isInternal(Position<E> p) {
-        // TODO
-        return false;
+        return children(p).iterator().hasNext();
     }
 
     /**
@@ -40,8 +39,7 @@ public abstract class AbstractTree<E> implements Tree<E> {
      */
     @Override
     public boolean isExternal(Position<E> p) {
-        // TODO
-        return false;
+        return !(children(p).iterator().hasNext());
     }
 
     /**
@@ -52,8 +50,7 @@ public abstract class AbstractTree<E> implements Tree<E> {
      */
     @Override
     public boolean isRoot(Position<E> p) {
-        // TODO
-        return false;
+        return parent(p) == null;
     }
 
     /**
@@ -65,8 +62,11 @@ public abstract class AbstractTree<E> implements Tree<E> {
      */
     @Override
     public int numChildren(Position<E> p) {
-        // TODO
-        return 0;
+        int count = 0;
+        for (Position position : children(p)) {
+            count++;
+        }
+        return count;
     }
 
     /**
@@ -100,8 +100,8 @@ public abstract class AbstractTree<E> implements Tree<E> {
      * @throws IllegalArgumentException if p is not a valid Position for this tree.
      */
     public int depth(Position<E> p) throws IllegalArgumentException {
-        // TODO
-        return 0;
+        if (isRoot(p)) return 0;
+        return 1 + depth(parent(p));
     }
 
     /**
@@ -118,8 +118,13 @@ public abstract class AbstractTree<E> implements Tree<E> {
     }
 
     public int height_recursive(Position<E> p) {
-        // TODO
-        return 0;
+        if (isExternal(p)) return 0;
+
+        int h = 0;
+        for (Position<E> child : children(p)) {
+            h = Math.max(h, 1 + height_recursive(child));
+        }
+        return h;
     }
 
     /**

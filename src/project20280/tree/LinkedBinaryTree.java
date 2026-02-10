@@ -153,8 +153,9 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalStateException if the tree is not empty
      */
     public Position<E> addRoot(E e) throws IllegalStateException {
-        // TODO
-        return null;
+        if (!isEmpty()) throw new IllegalStateException();
+        root = createNode(e, null, null, null);
+        return root;
     }
 
     public void insert(E e) {
@@ -179,8 +180,20 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p already has a left child
      */
     public Position<E> addLeft(Position<E> p, E e) throws IllegalArgumentException {
-        // TODO
-        return null;
+        validate(p);
+        Node<E> parent = (Node<E>) p;
+
+        // check if p already has a left child
+        if (parent.getLeft() != null) throw new IllegalArgumentException();
+
+        // create child
+        Node<E> child = createNode(e, parent, null, null);
+
+        // set child as left child
+        parent.setLeft(child);
+
+        size++;
+        return child;
     }
 
     /**
@@ -194,8 +207,20 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p already has a right child
      */
     public Position<E> addRight(Position<E> p, E e) throws IllegalArgumentException {
-        // TODO
-        return null;
+        validate(p);
+        Node<E> parent = (Node<E>) p;
+
+        // check if p already has a right child
+        if (parent.getRight() != null) throw new IllegalArgumentException();
+
+        // create child
+        Node<E> child = createNode(e, parent, null, null);
+
+        // set child as right child
+        parent.setRight(child);
+
+        size++;
+        return child;
     }
 
     /**
@@ -208,8 +233,12 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p is not a valid Position for this tree.
      */
     public E set(Position<E> p, E e) throws IllegalArgumentException {
-        // TODO
-        return null;
+        validate(p);
+
+        Node<E> node = (Node<E>) p;
+        E replaced = node.getElement();
+        node.setElement(e);
+        return replaced;
     }
 
     /**
@@ -235,8 +264,30 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p has two children.
      */
     public E remove(Position<E> p) throws IllegalArgumentException {
-        // TODO
-        return null;
+        Node<E> node = validate(p);
+        if (numChildren(node) > 1)
+            throw new IllegalArgumentException("p has two children");
+
+        Node<E> child = (node.getLeft() != null) ? node.getLeft() : node.getRight();
+
+        if (child != null) {
+            child.setParent(node.getParent());
+        }
+
+        if (node == root) {
+            root = child;
+        } else {
+            Node<E> parent = node.getParent();
+            if (parent.getLeft() == node) {
+                parent.setLeft(child);
+            } else {
+                parent.setRight(child);
+            }
+        }
+
+        size--;
+
+        return node.getElement();
     }
 
     public String toString() {
