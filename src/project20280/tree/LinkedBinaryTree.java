@@ -57,7 +57,7 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
     public static void main(String [] args) {
         LinkedBinaryTree<String> bt = new LinkedBinaryTree<>();
         String[] arr = { "A", "B", "C", "D", "E", null, "F", null, null, "G", "H", null, null, null, null };
-        bt.createLevelOrder(arr);
+        // bt.createLevelOrder(arr);
         System.out.println(bt.toBinaryTreeString());
     }
 
@@ -161,7 +161,6 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 
     public void insert(E e) {
         // TODO
-
     }
 
     // recursively add Nodes to binary tree in proper position
@@ -301,11 +300,17 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
     }
 
     public void createLevelOrder(ArrayList<E> l) {
-        // TODO
+        root = createLevelOrderHelper(l, root, 0);
     }
 
     private Node<E> createLevelOrderHelper(java.util.ArrayList<E> l, Node<E> p, int i) {
-        // TODO
+        if (i < l.size()) {
+            Node<E> node = createNode(l.get(i), p, null, null);
+            node.setLeft(createLevelOrderHelper(l, node, 2*i + 1));
+            node.setRight(createLevelOrderHelper(l, node, 2*i + 2));
+            size++;
+            return node;
+        }
         return null;
     }
 
@@ -314,7 +319,13 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
     }
 
     private Node<E> createLevelOrderHelper(E[] arr, Node<E> p, int i) {
-        // TODO
+        if (i < arr.length) {
+            Node<E> node = createNode(arr[i], p, null, null);
+            node.setLeft(createLevelOrderHelper(arr, node, 2*i + 1));
+            node.setRight(createLevelOrderHelper(arr, node, 2*i + 2));
+            size++;
+            return node;
+        }
         return null;
     }
 
