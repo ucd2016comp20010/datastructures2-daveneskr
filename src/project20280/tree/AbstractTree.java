@@ -1,7 +1,9 @@
 package project20280.tree;
 
 import project20280.interfaces.Position;
+import project20280.interfaces.Queue;
 import project20280.interfaces.Tree;
+import project20280.stacksqueues.LinkedQueue;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -185,7 +187,9 @@ public abstract class AbstractTree<E> implements Tree<E> {
      * @param snapshot a list to which results are appended
      */
     private void preorderSubtree(Position<E> p, List<Position<E>> snapshot) {
-        // TODO
+        snapshot.add(p);
+        for (Position<E> children : children(p))
+            preorderSubtree(children, snapshot);
     }
 
     /**
@@ -194,8 +198,10 @@ public abstract class AbstractTree<E> implements Tree<E> {
      * @return iterable collection of the tree's positions in preorder
      */
     public Iterable<Position<E>> preorder() {
-        // TODO
-        return null;
+        List<Position<E>> snapshot = new ArrayList<>();
+        if (!isEmpty())
+            preorderSubtree(root(),  snapshot);
+        return snapshot;
     }
 
     /**
@@ -206,7 +212,9 @@ public abstract class AbstractTree<E> implements Tree<E> {
      * @param snapshot a list to which results are appended
      */
     private void postorderSubtree(Position<E> p, List<Position<E>> snapshot) {
-        // TODO
+        for (Position<E> children : children(p))
+            preorderSubtree(children, snapshot);
+        snapshot.add(p);
     }
 
     /**
@@ -227,7 +235,16 @@ public abstract class AbstractTree<E> implements Tree<E> {
      * @return iterable collection of the tree's positions in breadth-first order
      */
     public Iterable<Position<E>> breadthfirst() {
-        // TODO
-        return null;
+        List<Position<E>> snapshot = new ArrayList<>();
+        Queue<Position<E>> queue = new LinkedQueue<>();
+        queue.enqueue(root());
+        while (!queue.isEmpty()) {
+            Position<E> p = queue.dequeue();
+            snapshot.add(p);
+            for (Position<E> children : children(p)) {
+                queue.enqueue(children);
+            }
+        }
+        return snapshot;
     }
 }

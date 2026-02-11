@@ -155,6 +155,7 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
     public Position<E> addRoot(E e) throws IllegalStateException {
         if (!isEmpty()) throw new IllegalStateException();
         root = createNode(e, null, null, null);
+        size++;
         return root;
     }
 
@@ -252,7 +253,12 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p is not a leaf
      */
     public void attach(Position<E> p, LinkedBinaryTree<E> t1, LinkedBinaryTree<E> t2) throws IllegalArgumentException {
-        // TODO
+        // potentially clear trees t1, t2
+        validate(p);
+        if (children(p).iterator().hasNext()) throw new IllegalArgumentException("Argument p is not a leaf");
+        Node<E> node = (Node<E>) p;
+        node.setLeft((Node<E>) t1.root());
+        node.setRight((Node<E>) t2.root());
     }
 
     /**
