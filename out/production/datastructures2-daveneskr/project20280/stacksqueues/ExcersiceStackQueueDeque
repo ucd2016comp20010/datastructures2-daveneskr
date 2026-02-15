@@ -1,0 +1,34 @@
+Q2: pseudocode for implementing Queue with two stacks
+
+Queue {
+    Stack in;
+    Stack out;
+
+    enqueue(e) {
+        in.push(e)
+    }
+
+    dequeue() {
+        if ( out.isEmpty ) {
+            while ( in.isNotEmpty ) {
+                out.push(in.pop)
+            }
+
+        return out.pop()
+    }
+
+Q3: reverse Stack order using to additional Stacks
+
+Stack O; // original
+Stack A; // additional 1
+Stack B; // additional 2
+
+popAndPushAll(Stack A, Stack B) {
+    while ( A.isNotEmpty ) {
+        B.push(A.pop)
+    }
+
+popAndPushAll(O, A)
+popAndPushAll(A, B)
+popAndPushAll(B, A)
+

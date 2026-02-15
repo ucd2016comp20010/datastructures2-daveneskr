@@ -101,5 +101,13 @@ public abstract class AbstractBinaryTree<E> extends AbstractTree<E>
     public Iterable<Position<E>> positions() {
         return inorder();
     }
+
+    public int numExternals() {
+        int count = 0;
+        for (Position<E> position : positions()) {
+            if (numChildren(position) == 0) count++; // if only left-> left(p)!=null && right(p)==null
+        }
+        return count;
+    }
 }
 

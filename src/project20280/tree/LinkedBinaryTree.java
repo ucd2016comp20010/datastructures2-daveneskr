@@ -1,8 +1,10 @@
 package project20280.tree;
 
+import project20280.interfaces.List;
 import project20280.interfaces.Position;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Concrete implementation of a binary tree using a node-based, linked
@@ -54,10 +56,30 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
     // accessor methods (not already implemented in AbstractBinaryTree)
 
     public static void main(String [] args) {
-        LinkedBinaryTree<String> bt = new LinkedBinaryTree<>();
-        String[] arr = { "A", "B", "C", "D", "E", null, "F", null, null, "G", "H", null, null, null, null };
-        // bt.createLevelOrder(arr);
-        System.out.println(bt.toBinaryTreeString());
+        LinkedBinaryTree<Character> btInorder = new LinkedBinaryTree<>();
+        Character[] arrInorder = {'M' , 'X', 'U', 'E', 'A', 'F', 'N'};
+        btInorder.createLevelOrder(arrInorder);
+        ArrayList<Position<Character>> inorder = (ArrayList<Position<Character>>) btInorder.inorder();
+        System.out.println("Inorder:");
+        System.out.println(btInorder.toBinaryTreeString());
+        System.out.println(inorder);
+
+        LinkedBinaryTree<Character> btPreorder = new LinkedBinaryTree<>();
+        Character[] arrPreorder = {'E' , 'X', 'F', 'A', 'M', 'U', 'N'};
+        btPreorder.createLevelOrder(arrPreorder);
+        ArrayList<Position<Character>> preorder = (ArrayList<Position<Character>>) btPreorder.preorder();
+        System.out.println("Preorder:");
+        System.out.println(btPreorder.toBinaryTreeString());
+        System.out.println(preorder);
+
+        LinkedBinaryTree<Character> btPostorder = new LinkedBinaryTree<>();
+        Character[] arrPostorder = {'N' , 'E', 'M', 'X', 'A', 'F', 'U'};
+        btPostorder.createLevelOrder(arrPostorder);
+        ArrayList<Position<Character>> postorder = (ArrayList<Position<Character>>) btPostorder.postorder();
+        System.out.println("Postorder:");
+        System.out.println(btPostorder.toBinaryTreeString());
+        System.out.println(postorder);
+
     }
 
 
@@ -331,6 +353,26 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
     public String toBinaryTreeString() {
         BinaryTreePrinter<E> btp = new BinaryTreePrinter<>(this);
         return btp.print();
+    }
+
+    /**
+     * Returns the longest path between any two nodes of the tree.
+     */
+    public int diameter() {
+        int diameter = 0;
+        return diameterHelper(root(), diameter);
+
+    }
+
+    private int diameterHelper(Position<E> p, int diameter) {
+        if (p == null) return 0;
+
+        int l = diameterHelper(left(p), diameter);
+        int r =diameterHelper(right(p), diameter);
+
+        diameter = Math.max(diameter, l+r);
+
+        return Math.max(l,r) + 1;
     }
 
     /**
