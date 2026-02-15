@@ -135,6 +135,15 @@ public abstract class AbstractTree<E> implements Tree<E> {
      * @param p A valid Position within the tree
      * @throws IllegalArgumentException if p is not a valid Position for this tree.
      */
+    public int height(Position<E> p) throws IllegalArgumentException {
+        return height_recursive(p);
+    }
+
+    /**
+     * Returns the height of the tree from the root
+     *
+     * @throws IllegalArgumentException if p is not a valid Position for this tree.
+     */
     public int height() throws IllegalArgumentException {
         return height_recursive(root());
     }
