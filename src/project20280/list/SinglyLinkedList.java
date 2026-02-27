@@ -140,6 +140,16 @@ public class SinglyLinkedList<E> implements List<E> {
         size++;
     }
 
+    public static <E> void append(SinglyLinkedList<E> first, SinglyLinkedList<E> second) {
+        Node<E> curr = first.head;
+
+        while (curr.getNext() != null) {
+            curr = curr.getNext();
+        }
+
+        curr.setNext(second.head);
+    }
+
     @Override
     public E remove(int position) {
         if (size <= position) throw new IndexOutOfBoundsException(); // check if index valid
@@ -226,16 +236,30 @@ public class SinglyLinkedList<E> implements List<E> {
         return sb.toString();
     }
 
+    public void reverse() {
+        reverseHelper(null, head);
+    }
+
+    private void reverseHelper(Node<E> prev, Node<E> curr) {
+        if (curr == null) {
+            head = prev;
+            return;
+        }
+
+        Node<E> next = curr.next;
+        curr.setNext(prev);
+
+        reverseHelper(curr, next);
+    }
+
     public static void main(String[] args) {
         SinglyLinkedList<Integer> ll = new SinglyLinkedList<Integer>();
-        System.out.println("ll " + ll + " isEmpty: " + ll.isEmpty());
+        int[] arr = {0, 1, 2, 3, 4, 5};
+        for (int i : arr) {
+            ll.addLast(i);
+        }
+        ll.reverse();
 
-
-        ll.addFirst(0);
-        System.out.println("ll " + ll + " isEmpty: " + ll.isEmpty());
-
-        ll.removeLast();
-        System.out.println("ll " + ll + " isEmpty: " + ll.isEmpty());
-
+        System.out.println(ll);
     }
 }
