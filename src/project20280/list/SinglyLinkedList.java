@@ -252,14 +252,40 @@ public class SinglyLinkedList<E> implements List<E> {
         reverseHelper(curr, next);
     }
 
+    public SinglyLinkedList<E> recursiveCopy() {
+        SinglyLinkedList<E> linkedList = new SinglyLinkedList<>();
+        if (head != null) {
+            Node<E> headCopy = new Node<>(head.element, null);
+            linkedList.head = headCopy;
+            recursiveCopyHelper(headCopy, head.next);
+        }
+        return linkedList;
+    }
+
+    private void recursiveCopyHelper(Node<E> prevCopy, Node<E> currOrig) {
+        if (currOrig == null) return;
+        Node<E> currCopy = new Node<>(currOrig.element, null);
+        prevCopy.setNext(currCopy);
+        recursiveCopyHelper(currCopy, currOrig.next);
+    }
+
     public static void main(String[] args) {
         SinglyLinkedList<Integer> ll = new SinglyLinkedList<Integer>();
         int[] arr = {0, 1, 2, 3, 4, 5};
         for (int i : arr) {
             ll.addLast(i);
         }
-        ll.reverse();
+        SinglyLinkedList<Integer> copy = ll.recursiveCopy();
 
-        System.out.println(ll);
+        Node<Integer> currOriginal = ll.head;
+        Node<Integer> currCopy = copy.head;
+
+        while (currOriginal != null && currCopy != null) {
+            System.out.println(currOriginal == currCopy);  // should print false
+            currOriginal = currOriginal.getNext();
+            currCopy = currCopy.getNext();
+        }
+
+        System.out.println(copy);
     }
 }
