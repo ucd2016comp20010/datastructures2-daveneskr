@@ -42,9 +42,26 @@ public class Recursion {
         }
     }
 
-
-
     public static void main(String[] args) {
-        System.out.println(McCarthy91(87));
+        double timeSeconds = 0;
+        int bestN = 0;
+        int n = 1;
+
+        while (true) {
+            long start = System.nanoTime();
+            fibonacci(n);
+            long end = System.nanoTime();
+
+            timeSeconds = (end - start) / 1_000_000_000.0;
+
+            if (timeSeconds > 60) {
+                break;
+            }
+
+            bestN = n;
+            n++;
+        }
+
+        System.out.println(bestN);
     }
 }

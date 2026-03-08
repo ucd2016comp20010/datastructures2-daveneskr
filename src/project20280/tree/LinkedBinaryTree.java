@@ -2,6 +2,8 @@ package project20280.tree;
 
 import project20280.interfaces.BinaryTree;
 import project20280.interfaces.Position;
+import project20280.interfaces.PriorityQueue;
+import project20280.priorityqueue.HeapPriorityQueue;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -109,98 +111,19 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 
     // accessor methods (not already implemented in AbstractBinaryTree)
 
-    public static void main(String [] args) throws IOException{
+    public static void main(String [] args) throws IOException {
 
-        /*
-        LinkedBinaryTree<Character> btInorder = new LinkedBinaryTree<>();
-        Character[] arrInorder = {'M' , 'X', 'U', 'E', 'A', 'F', 'N'};
-        btInorder.createLevelOrder(arrInorder);
-        ArrayList<Position<Character>> inorder = (ArrayList<Position<Character>>) btInorder.inorder();
-        System.out.println("Inorder:");
-        System.out.println(btInorder.toBinaryTreeString());
-        System.out.println(inorder);
+        Integer[] arr = {2, 5, 16, 4, 10, 23, 39, 18, 26, 15};
+        HeapPriorityQueue<Integer, Integer> heap = new HeapPriorityQueue<>(arr, arr);
+        System.out.println(heap);
 
-        LinkedBinaryTree<Character> btPreorder = new LinkedBinaryTree<>();
-        Character[] arrPreorder = {'E' , 'X', 'F', 'A', 'M', 'U', 'N'};
-        btPreorder.createLevelOrder(arrPreorder);
-        ArrayList<Position<Character>> preorder = (ArrayList<Position<Character>>) btPreorder.preorder();
-        System.out.println("Preorder:");
-        System.out.println(btPreorder.toBinaryTreeString());
-        System.out.println(preorder);
+        Integer[] heapArr = new Integer[]{2, 4, 16, 5, 10, 23, 39, 18, 26, 15};
+        LinkedBinaryTree<Integer> binaryTree = new LinkedBinaryTree<>();
+        binaryTree.createLevelOrder(heapArr);
 
-        LinkedBinaryTree<Character> btPostorder = new LinkedBinaryTree<>();
-        Character[] arrPostorder = {'N' , 'E', 'M', 'X', 'A', 'F', 'U'};
-        btPostorder.createLevelOrder(arrPostorder);
-        ArrayList<Position<Character>> postorder = (ArrayList<Position<Character>>) btPostorder.postorder();
-        System.out.println("Postorder:");
-        System.out.println(btPostorder.toBinaryTreeString());
-        System.out.println(postorder);
-
-         */
-
-
-        /*
-        Integer [] inorder = new Integer[23];
-        for (int i = 0; i < inorder.length; i++) {
-            inorder[i] = i;
-        }
-        Integer [] preorder = {6,5,3,2,1,0,4,17,10,9,8,7,16,14,13,12,11,15,21,20,19,18,22};
-
-        LinkedBinaryTree<Integer> bt = new LinkedBinaryTree<>();
-
-        bt.construct(inorder, preorder);
-        System.out.println(bt.diameter());
-        bt.printDiameter();
-         */
-
-
-        Locale.setDefault(Locale.US); // ensures decimal dot in CSV if needed
-
-        int trials = 100;
-
-        try (FileWriter out = new FileWriter("avg_height.csv")) {
-            out.write("n,avgHeight,stdDev,lnN,log2N\n");
-
-            for (int n = 50; n <= 5000; n += 50) {
-                double sum = 0.0;
-                double sumSq = 0.0;
-
-                for (int t = 0; t < trials; t++) {
-                    LinkedBinaryTree<Integer> rt = new LinkedBinaryTree<>();
-                    rt.setRoot(randomTree(null, 1, n));
-                    int h = rt.height();
-                    sum += h;
-                    sumSq += (double) h * h;
-                }
-
-                double avg = sum / trials;
-                double var = (sumSq / trials) - (avg * avg);
-                double std = var > 0 ? Math.sqrt(var) : 0.0;
-
-                double lnN = Math.log(n);
-                double log2N = Math.log(n) / Math.log(2);
-
-                out.write(String.format("%d,%.6f,%.6f,%.6f,%.6f%n", n, avg, std, lnN, log2N));
-            }
-        }
-
-        System.out.println("Wrote avg_height.csv (import into Sheets/Excel)");
-
-        /*
-        Integer [] inorder = new Integer[23];
-        for (int i = 0; i < inorder.length; i++) {
-            inorder[i] = i;
-        }
-        Integer [] preorder = {6,5,3,2,1,0,4,17,10,9,8,7,16,14,13,12,11,15,21,20,19,18,22};
-
-        LinkedBinaryTree<Integer> bt = new LinkedBinaryTree<>();
-
-        bt.construct(inorder, preorder);
-
-        System.out.println(bt.rootToLeafPath());
-
-         */
-
+        System.out.println(binaryTree.toBinaryTreeString());
+        System.out.println(binaryTree.preorder());
+        System.out.println(binaryTree.postorder());
     }
 
 
@@ -560,6 +483,19 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
             left++;
             right--;
         }
+    }
+
+    public void printLeaves() {
+        ArrayList<E> leaves = new ArrayList<>(size);
+        printLeavesHelper(leaves, root);
+        System.out.println(leaves);
+    }
+
+    private void printLeavesHelper(ArrayList<E> leaves, Position<E> p) {
+        if (p == null) return;
+        printLeavesHelper(leaves, left(p));
+        if (isExternal(p)) leaves.add(p.getElement());
+        printLeavesHelper(leaves, right(p));
     }
 
     public void setRoot(Node<E> r) {
