@@ -2,6 +2,8 @@ package project20280.hashtable;
 
 import project20280.interfaces.Entry;
 
+import java.util.ArrayList;
+
 public class ProbeHashMap<K, V> extends AbstractHashMap<K, V> {
     private MapEntry<K, V>[] table;
     private final MapEntry<K, V> DEFUNCT = new MapEntry<>(null, null);
@@ -30,30 +32,54 @@ public class ProbeHashMap<K, V> extends AbstractHashMap<K, V> {
     }
 
     int findSlot(int h, K k) {
-        // TODO
-        return 0;
+        int i = h, defunctSlot = -1;
+        while(table[i] != null) {
+            if (table[i].getKey().equals(k)) { /* key found */
+                return i;
+            }
+            if (defunctSlot == -1 && table[i] == DEFUNCT) { /* remember defunct position */
+                defunctSlot = i;
+            }
+            i = (i+1) % capacity;
+        }
+        if (defunctSlot != -1) {
+            return defunctSlot;
+        }
+        return i;
     }
 
     @Override
     protected V bucketGet(int h, K k) {
-        // TODO
+        int i = findSlot(h, k);
+        if (table[i] != null) return table[i].getValue();
         return null;
     }
 
     @Override
     protected V bucketPut(int h, K k, V v) {
-        // TODO
-        return null;
+        int i = findSlot(h, k);
+        V prev = table[i]!=null? table[i].getValue() : null;
+        table[i] = new MapEntry<>(k, v);
+        return prev;
     }
 
     @Override
     protected V bucketRemove(int h, K k) {
-        // TODO
-        return null;
+        int i = findSlot(h, k);
+        V prev = null;
+        if (table[i] != null) {
+            prev = table[i].getValue();
+            table[i] = DEFUNCT;
+        }
+        return prev;
     }
 
     @Override
     public Iterable<Entry<K, V>> entrySet() {
-        return null;
+        ArrayList<Entry<K, V>> iteratable = new ArrayList<>(size());
+        for (MapEntry entry : table) {
+            if (entry != null && entry != DEFUNCT) iteratable.add(entry);
+        }
+        return iteratable;
     }
 }

@@ -2,7 +2,10 @@ package project20280.hashtable;
 
 import project20280.interfaces.Entry;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.*;
+import java.util.stream.Stream;
 
 /*
  * Map implementation using hash table with separate chaining.
@@ -17,6 +20,7 @@ public class ChainHashMap<K, V> extends AbstractHashMap<K, V> {
      */
     public ChainHashMap() {
         super();
+        createTable();
     }
 
     /**
@@ -24,6 +28,7 @@ public class ChainHashMap<K, V> extends AbstractHashMap<K, V> {
      */
     public ChainHashMap(int cap) {
         super(cap);
+        createTable();
     }
 
     /**
@@ -31,6 +36,7 @@ public class ChainHashMap<K, V> extends AbstractHashMap<K, V> {
      */
     public ChainHashMap(int cap, int p) {
         super(cap, p);
+        createTable();
     }
 
     /**
@@ -52,8 +58,7 @@ public class ChainHashMap<K, V> extends AbstractHashMap<K, V> {
      */
     @Override
     protected V bucketGet(int h, K k) {
-        // TODO
-        return null;
+        return table[h] == null ? null : table[h].get(k);
     }
 
     /**
@@ -67,8 +72,8 @@ public class ChainHashMap<K, V> extends AbstractHashMap<K, V> {
      */
     @Override
     protected V bucketPut(int h, K k, V v) {
-        // TODO
-        return null;
+        if (table[h] == null) table[h] = new UnsortedTableMap<>();
+        return table[h].put(k, v);
     }
 
 
@@ -82,8 +87,7 @@ public class ChainHashMap<K, V> extends AbstractHashMap<K, V> {
      */
     @Override
     protected V bucketRemove(int h, K k) {
-        // TODO
-        return null;
+        return table[h] == null ? null : table[h].remove(k);
     }
 
     /**
@@ -109,20 +113,46 @@ public class ChainHashMap<K, V> extends AbstractHashMap<K, V> {
         return entries;
     }
 
+    @Override
     public String toString() {
-        return entrySet().toString();
+        StringBuilder sb = new StringBuilder("{");
+        boolean first = true;
+
+        for (Entry<K, V> e : entrySet()) {
+            if (!first) {
+                sb.append(", ");
+            }
+            sb.append(e.getKey()).append("=").append(e.getValue());
+            first = false;
+        }
+
+        sb.append("}");
+        return sb.toString();
     }
 
-    public static void main(String[] args) {
-        ChainHashMap<Integer, String> m = new ChainHashMap<Integer, String>();
-        m.put(1, "One");
-        m.put(10, "Ten");
-        m.put(11, "Eleven");
-        m.put(20, "Twenty");
+    public static void main(String[] args) throws FileNotFoundException {
+        File f = new File("/Users/davidneskrabal/Downloads/sample_text.txt"); // check the path to the file
+        ChainHashMap<String, Integer> counter = new ChainHashMap<>();
+        // use a Scanner to read words from the file
+        Scanner scanner = new Scanner(f);
+        while (scanner.hasNext()) { // read the file word at a time
+            String word = scanner.next();
+            // if word is not in the hashmap, add it with count=1
+            // otherwise, find the entry for this word and increment
+            Integer count = counter.get(word);
+            counter.put(word, count==null? 1 : count+1);
+        }
 
-        System.out.println("m: " + m);
+        Stream<Entry<String, Integer>> stream =
+                ((Collection<Entry<String, Integer>>) counter.entrySet()).stream();
 
-        m.remove(11);
-        System.out.println("m: " + m);
+
+        List<String> mostFreq = stream
+                .sorted(Comparator.comparing(Entry<String, Integer>::getValue).reversed())
+                .map(Entry::getKey)
+                .limit(10)
+                .toList();
+
+        System.out.println(mostFreq);
     }
 }

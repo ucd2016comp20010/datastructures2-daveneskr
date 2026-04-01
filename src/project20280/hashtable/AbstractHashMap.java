@@ -83,7 +83,9 @@ public abstract class AbstractHashMap<K, V> extends AbstractMap<K, V> {
      */
     @Override
     public V remove(K key) {
-        return bucketRemove(hashValue(key), key);
+        V value = bucketRemove(hashValue(key), key);
+        if (value != null) n--;
+        return value;
     }
 
     /**
@@ -98,8 +100,8 @@ public abstract class AbstractHashMap<K, V> extends AbstractMap<K, V> {
      */
     @Override
     public V put(K key, V value) {
-        // TODO
-        return null;
+        n++;
+        return bucketPut(hashValue(key), key, value);
     }
 
     // private utilities
@@ -108,8 +110,7 @@ public abstract class AbstractHashMap<K, V> extends AbstractMap<K, V> {
      * Hash function applying MAD method to default hash code.
      */
     private int hashValue(K key) {
-        // TODO
-        return 0;
+        return (int) ((Math.abs(key.hashCode() * scale + shift) % prime) % capacity);
     }
 
     /**

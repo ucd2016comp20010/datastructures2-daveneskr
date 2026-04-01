@@ -5,6 +5,7 @@ package project20280.priorityqueue;
 
 import project20280.interfaces.Entry;
 
+import javax.sound.sampled.Line;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -117,6 +118,32 @@ public class HeapPriorityQueue<K, V> extends AbstractPriorityQueue<K, V> {
     }
 
     /**
+     * Moves the entry at index j lower, if necessary, to restore the heap property.
+     * Stops at index end
+     */
+    protected void downheap(int j, int end) {
+        while (true) {
+            int left = left(j);
+            int right = right(j);
+            int min = j;
+
+            // check within [0, end)
+            if (left < end && compare(heap.get(left), heap.get(min)) < 0) {
+                min = left;
+            }
+
+            if (right < end && compare(heap.get(right), heap.get(min)) < 0) {
+                min = right;
+            }
+
+            if (min == j) break;
+
+            swap(j, min);
+            j = min;
+        }
+    }
+
+    /**
      * Performs a bottom-up construction of the heap in linear time.
      */
     protected void heapify() {
@@ -140,6 +167,36 @@ public class HeapPriorityQueue<K, V> extends AbstractPriorityQueue<K, V> {
 
         for (int j=parent(size()-1); j>=0; j--)
             downheap(j);
+    }
+
+    public static Integer[] PQSort(Integer[] arr) {
+        HeapPriorityQueue<Integer, Integer> heap = new HeapPriorityQueue<>(arr, arr);
+
+        Integer[] sorted = new Integer[heap.size()];
+        for (int i = 0; i < sorted.length; i++) {
+            sorted[i] = heap.removeMin().getKey();
+        }
+
+        return sorted;
+    }
+
+    public static Integer[] heapsort(Integer[] arr) {
+        Comparator<Integer> reverseComparator = (a, b) -> Integer.compare(b, a);
+        HeapPriorityQueue<Integer, Integer> heap = new HeapPriorityQueue<>(reverseComparator);
+        heap.heapify(arr, arr);
+
+        for (int i=heap.size()-1; i>0; i--) {
+            heap.swap(0, i);
+            heap.downheap(0, i);
+
+        }
+
+        Integer[] sorted = new Integer[heap.size()];
+        for (int i = 0; i < heap.size(); i++) {
+            sorted[i] = heap.getHeap().get(i).getKey();
+        }
+
+        return sorted;
     }
 
     // public methods
@@ -232,6 +289,7 @@ public class HeapPriorityQueue<K, V> extends AbstractPriorityQueue<K, V> {
 
     public static void main(String[] args) {
         Integer[] rands = new Integer[]{35, 26, 15, 24, 33, 4, 12, 1, 23, 21, 2, 5};
+        /*
         HeapPriorityQueue<Integer, Integer> pq = new HeapPriorityQueue<>(rands, rands);
 
         System.out.println("elements: " + Arrays.toString(rands));
@@ -241,6 +299,14 @@ public class HeapPriorityQueue<K, V> extends AbstractPriorityQueue<K, V> {
             System.out.println("min element: " + pq.removeMin());
             System.out.println("after removeMin: " + pq);
         }
+
+         */
+
+        Integer[] sorted = heapsort(rands);
+        for (Integer i : sorted) {
+            System.out.print(i + ", ");
+        }
+
 
         // [             1,
         //        2,            4,
