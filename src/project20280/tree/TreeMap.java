@@ -1,11 +1,10 @@
 package project20280.tree;
 
 import project20280.interfaces.Entry;
+import project20280.interfaces.List;
 import project20280.interfaces.Position;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -59,8 +58,19 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
         /**
          * Relinks a parent node with its oriented child node.
          */
-        private void relink(Node<Entry<K, V>> parent, Node<Entry<K, V>> child, boolean makeLeftChild) {
-            // TODO
+        private void relink(Node<Entry<K, V>> parent,
+                            Node<Entry<K, V>> child,
+                            boolean makeLeftChild) {
+
+            if (makeLeftChild) {
+                parent.setLeft(child);
+            } else {
+                parent.setRight(child);
+            }
+
+            if (child != null) {
+                child.setParent(parent);
+            }
         }
 
         /**
@@ -78,7 +88,34 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
          * Caller should ensure that p is not the root.
          */
         public void rotate(Position<Entry<K, V>> p) {
-            // TODO
+            Node<Entry<K, V>> x = (Node<Entry<K, V>>) p;
+            Node<Entry<K, V>> y = (Node<Entry<K, V>>) parent(p);
+
+            if (isLeftChild(x)) {
+                rightRotate(y);
+            } else {
+                leftRotate(y);
+            }
+        }
+
+        private void leftRotate(Node<Entry<K, V>> a) {
+            Node<Entry<K, V>> b = (Node<Entry<K, V>>) right(a);
+            Node<Entry<K, V>> t1 = b.getLeft();
+
+            relink((Node<Entry<K, V>>) parent(a), b, isLeftChild(a));
+
+            relink(a, t1, false);   // a.right = t1
+            relink(b, a, true);     // b.left = a
+        }
+
+        private void rightRotate(Node<Entry<K, V>> b) {
+            Node<Entry<K, V>> a = (Node<Entry<K,V>>) left(b);
+            Node<Entry<K, V>> t1 = a.getRight();
+
+            relink((Node<Entry<K,V>>) parent(b), a, isLeftChild(b));
+
+            relink(b, t1, true); // b.left = t1
+            relink(a, b, false); // a.right = b
         }
 
         /**
@@ -110,10 +147,28 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
          * Caller should ensure that x has a grandparent.
          */
         public Position<Entry<K, V>> restructure(Position<Entry<K, V>> x) {
-            // TODO
-            return null;
+            Position<Entry<K, V>> y = parent(x);
+            Position<Entry<K, V>> z = parent(y);
+
+            if ((x == left(y) && y == left(z)) ||
+                    (x == right(y) && y == right(z))) {
+                rotate(y);
+                return y;
+            } else {
+                rotate(x);
+                rotate(x);
+                return x;
+            }
         }
     } // ----------- end of nested BalanceableBinaryTree class -----------
+
+    protected int getAux(Position<Entry<K, V>> p) {
+        return tree.getAux(p);
+    }
+
+    protected void setAux(Position<Entry<K, V>> p, int value) {
+        tree.setAux(p, value);
+    }
 
     // We reuse the LinkedBinaryTree class. A limitation here is that we only use
     // the key.
@@ -243,8 +298,17 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      * @return Position holding key, or last node reached during search
      */
     private Position<Entry<K, V>> treeSearch(Position<Entry<K, V>> p, K key) {
-        // TODO
-        return null;
+        if (isExternal(p)) return p; // ran off the tree - return the sentinel leaf
+
+        int comp = compare(key, p.getElement().getKey());
+
+        if (comp == 0) {
+            return p;
+        } else if (comp < 0) {
+            return treeSearch(left(p), key);
+        } else {
+            return treeSearch(right(p), key);
+        }
     }
 
     /**
@@ -254,8 +318,9 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      * @return Position with minimal key in subtree
      */
     protected Position<Entry<K, V>> treeMin(Position<Entry<K, V>> p) {
-        // TODO
-        return null;
+        Position<Entry<K, V>> curr = p;
+        while (isInternal(left(curr))) curr = left(curr);
+        return curr;
     }
 
     /**
@@ -265,8 +330,9 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      * @return Position with maximum key in subtree
      */
     protected Position<Entry<K, V>> treeMax(Position<Entry<K, V>> p) {
-        // TODO
-        return null;
+        Position<Entry<K, V>> curr = p;
+        while (isInternal(right(curr))) curr = right(curr);
+        return curr;
     }
 
     /**
@@ -278,8 +344,11 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      */
     @Override
     public V get(K key) throws IllegalArgumentException {
-        // TODO
-        return null;
+        if (isEmpty()) return null;
+        Position<Entry<K, V>> p = treeSearch(root(), key);
+        if (isExternal(p)) return null; // not found
+        rebalanceAccess(p);
+        return p.getElement().getValue();
     }
 
     /**
@@ -294,9 +363,26 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      */
     @Override
     public V put(K key, V value) throws IllegalArgumentException {
-        // TODO
+        Entry<K, V> entry = new MapEntry<>(key, value);
+        if (isEmpty()) {
+            expandExternal(root(), entry);
+            rebalanceInsert(root());
+            return null;
+        }
+        Position<Entry<K, V>> p = treeSearch(root(), key);
+        if (isInternal(p)) {
+            // key exists - update
+            V old = p.getElement().getValue();
+            set(p, entry);
+            rebalanceAccess(p);
+            return old;
+        }
+        // p is an external sentinel - expand it
+        expandExternal(p, entry);
+        rebalanceInsert(p);
         return null;
     }
+
 
     /**
      * Removes the entry with the specified key, if present, and returns its
@@ -308,8 +394,34 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      */
     @Override
     public V remove(K key) throws IllegalArgumentException {
-        // TODO
-        return null;
+        if (isEmpty()) return null;
+
+        Position<Entry<K, V>> p = treeSearch(root(), key);
+
+        // treeSearch returns external sentinel if key not found
+        if (isExternal(p)) {
+            rebalanceAccess(p);
+            return null;
+        }
+
+        V oldValue = p.getElement().getValue();
+
+        // Case: two internal children - replace with inorder successor
+        if (isInternal(left(p)) && isInternal(right(p))) {
+            Position<Entry<K, V>> successor = treeMin(right(p));
+            set(p, successor.getElement());
+            p = successor;
+        }
+
+        // Now p has at most one internal child
+        Position<Entry<K, V>> leaf = isExternal(left(p)) ? left(p) : right(p);
+        Position<Entry<K, V>> sib = sibling(leaf);
+
+        remove(leaf);
+        remove(p);
+
+        rebalanceDelete(sib);
+        return oldValue;
     }
 
     // additional behaviors of the SortedMap interface
@@ -348,8 +460,25 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      */
     @Override
     public Entry<K, V> ceilingEntry(K key) throws IllegalArgumentException {
-        // TODO
-        return null;
+        Position<Entry<K, V>> p = root();
+        Entry<K, V> candidate = null;
+
+        while (isInternal(p)) {
+            int comp = compare(key, p.getElement().getKey());
+
+            if (comp == 0) {
+                return p.getElement();
+            } else if (comp < 0) {
+                // current key > target → possible ceiling
+                candidate = p.getElement();
+                p = left(p);
+            } else {
+                // current key < target → go right
+                p = right(p);
+            }
+        }
+
+        return candidate;
     }
 
     /**
@@ -362,8 +491,25 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      */
     @Override
     public Entry<K, V> floorEntry(K key) throws IllegalArgumentException {
-        // TODO
-        return null;
+        Position<Entry<K, V>> p = root();
+        Entry<K, V> candidate = null;
+
+        while (isInternal(p)) {
+            int comp = compare(key, p.getElement().getKey());
+
+            if (comp == 0) {
+                return p.getElement();
+            } else if (comp < 0) {
+                // current key > target → go left
+                p = left(p);
+            } else {
+                // current key < target → possible floor
+                candidate = p.getElement();
+                p = right(p);
+            }
+        }
+
+        return candidate;
     }
 
     /**
@@ -376,8 +522,25 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      */
     @Override
     public Entry<K, V> lowerEntry(K key) throws IllegalArgumentException {
-        // TODO
-        return null;
+        Position<Entry<K, V>> p = root();
+        Entry<K, V> candidate = null;
+
+        while (isInternal(p)) {
+            int comp = compare(key, p.getElement().getKey());
+
+            if (comp == 0) {
+                return candidate;
+            } else if (comp < 0) {
+                // current key > target → go left
+                p = left(p);
+            } else {
+                // current key < target → possible floor
+                candidate = p.getElement();
+                p = right(p);
+            }
+        }
+
+        return candidate;
     }
 
     /**
@@ -390,8 +553,25 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      */
     @Override
     public Entry<K, V> higherEntry(K key) throws IllegalArgumentException {
-        // TODO
-        return null;
+        Position<Entry<K, V>> p = root();
+        Entry<K, V> candidate = null;
+
+        while (isInternal(p)) {
+            int comp = compare(key, p.getElement().getKey());
+
+            if (comp == 0) {
+                return p.getElement();
+            } else if (comp < 0) {
+                // current key > target → possible ceiling
+                candidate = p.getElement();
+                p = left(p);
+            } else {
+                // current key < target → go right
+                p = right(p);
+            }
+        }
+
+        return candidate;
     }
 
     // Support for iteration
@@ -427,8 +607,22 @@ public class TreeMap<K, V> extends AbstractSortedMap<K, V> {
      */
     @Override
     public Iterable<Entry<K, V>> subMap(K fromKey, K toKey) throws IllegalArgumentException {
-        // TODO
-        return null;
+        ArrayList<Entry<K, V>> output = new ArrayList<>(size());
+        Iterator<Entry<K, V>> inorder = entrySet().iterator();
+        while (inorder.hasNext()) {
+            Entry<K, V> curr = inorder.next();
+            if (compare(curr.getKey(), fromKey) >= 0) { // start adding to output
+                output.addLast(curr);
+                while (inorder.hasNext()) {
+                    curr = inorder.next();
+                    if (compare(curr.getKey(), toKey) > 0) { // if past toKey stop
+                        return output;
+                    }
+                    output.addLast(curr);
+                }
+            }
+        }
+        return output;
     }
 
     protected void rotate(Position<Entry<K, V>> p) {

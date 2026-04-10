@@ -109,5 +109,15 @@ public abstract class AbstractBinaryTree<E> extends AbstractTree<E>
         }
         return count;
     }
+
+    /**
+     * Returns true if p is the left child
+     * @param p
+     * @return true if p is the left child
+     */
+    public boolean isLeftChild(Position<E> p) {
+        Position<E> parent = parent(p);
+        return left(parent) == p;
+    }
 }
 

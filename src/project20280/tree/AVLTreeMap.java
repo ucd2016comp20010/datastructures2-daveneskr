@@ -31,31 +31,37 @@ public class AVLTreeMap<K, V> extends TreeMap<K, V> {
      * Returns the height of the given tree position.
      */
     protected int height(Position<Entry<K, V>> p) {
-        // TODO
-        return 0;
+        if (isExternal(p)) return 0;
+        return Math.max(height(left(p)), height(right(p))) + 1;
     }
 
     /**
      * Recomputes the height of the given position based on its children's heights.
      */
     protected void recomputeHeight(Position<Entry<K, V>> p) {
-        // TODO
+        int h = 1 + Math.max(
+                isExternal(left(p))  ? 0 : getAux(left(p)),
+                isExternal(right(p)) ? 0 : getAux(right(p))
+        );
+        setAux(p, h);
     }
 
     /**
      * Returns whether a position has balance factor between -1 and 1 inclusive.
      */
     protected boolean isBalanced(Position<Entry<K, V>> p) {
-        // TODO
-        return false;
+        int diff = Math.abs(height(left(p)) - height(right(p)));
+        return diff <= 1;
     }
 
     /**
      * Returns a child of p with height no smaller than that of the other child.
      */
     protected Position<Entry<K, V>> tallerChild(Position<Entry<K, V>> p) {
-        // TODO
-        return null;
+        if (height(left(p)) > height(right(p))) {
+            return left(p);
+        }
+        return right(p);
     }
 
     /**
